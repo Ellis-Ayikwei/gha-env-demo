@@ -1,0 +1,19 @@
+name: Test Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "🚀 Deploying to TEST environment"
+      # Optional: build artifact
+      - run: mkdir -p dist && echo "Test build" > dist/build.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: dist/
