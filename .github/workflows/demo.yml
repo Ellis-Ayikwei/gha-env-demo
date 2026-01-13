@@ -1,0 +1,20 @@
+name: Environment Promotion Demo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_test:
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - run: echo "🚀 Deploying to TEST environment"
+
+  deploy_prod:
+    needs: deploy_test
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - run: echo "🔥 Deploying to PRODUCTION environment"
