@@ -1,20 +1,31 @@
-name: Prod Deployment
+name: Deploy to PRODUCTION
 
 on:
   workflow_dispatch:
     inputs:
-      artifact_sha:
-        description: "Commit SHA or artifact to deploy"
+      commit-sha:
+        description: 'Commit SHA to deploy (from TEST)'
         required: true
+        type: string
 
 jobs:
   deploy_prod:
+    name: Deploy to PRODUCTION
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Download artifact from TEST deployment
+        uses: dawidd6/action-download-artifact@v3
         with:
-          ref: ${{ github.event.inputs.artifact_sha }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: app-build
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: deploy_with_approval.yml
+          commit: ${{ inputs.commit-sha }}
+          name: app-build-${{ inputs.commit-sha }}
+          path: dist/
+
       - run: echo "🔥 Deploying to PRODUCTION environment"
+      - run: cat dist/build.txt  # verify artifact
+      
+      - name: Deployment summary
+        run: |
+          echo "✅ PRODUCTION deployment complete"
+          echo "📦 Deployed from commit: ${{ inputs.commit-sha }}"
