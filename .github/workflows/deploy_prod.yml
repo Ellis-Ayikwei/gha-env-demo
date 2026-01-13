@@ -1,20 +1,17 @@
 name: Prod Deployment
 
 on:
-  workflow_dispatch:
-    inputs:
-      artifact_sha:
-        description: "Commit SHA or artifact to deploy"
-        required: true
+  workflow_dispatch:  # manual trigger
 
 jobs:
   deploy_prod:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Download latest test artifact
+        uses: actions/download-artifact@v4
         with:
-          ref: ${{ github.event.inputs.artifact_sha }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: app-build
+          name: test-artifact
+          path: dist/
+
       - run: echo "🔥 Deploying to PRODUCTION environment"
+      - run: cat dist/build.txt  # just to verify the artifact

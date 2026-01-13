@@ -10,10 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - run: echo "🚀 Deploying to TEST environment"
-      # Optional: build artifact
-      - run: mkdir -p dist && echo "Test build" > dist/build.txt
+
+      # Build or generate artifact
+      - run: mkdir -p dist && echo "Test build for $GITHUB_SHA" > dist/build.txt
+
+      # Upload artifact for prod workflow
       - uses: actions/upload-artifact@v4
         with:
-          name: app-build
+          name: test-artifact
           path: dist/
