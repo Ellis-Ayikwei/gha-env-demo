@@ -1,0 +1,50 @@
+name: Test → Prod Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_test:
+    name: Deploy to TEST
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: app-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: echo "🚀 Deploying to TEST environment"
+
+      # Build artifact
+      - run: mkdir -p dist && echo "Build for $GITHUB_SHA" > dist/build.txt
+
+      # Upload artifact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: dist/
+
+  wait_for_approval:
+    name: Wait for manual approval
+    needs: deploy_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pause for approval
+        uses: benc-uk/workflow-wait@v2
+        with:
+          timeout-minutes: 1440  # wait up to 1 day
+          continue: false
+
+  deploy_prod:
+    name: Deploy to PRODUCTION
+    needs: wait_for_approval
+    runs-on: ubuntu-latest
+    steps:
+      # Download the artifact from test
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-build
+
+      - run: echo "🔥 Deploying to PRODUCTION environment"
+      - run: cat dist/build.txt  # verify artifact
